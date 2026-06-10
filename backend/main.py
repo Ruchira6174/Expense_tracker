@@ -4,9 +4,12 @@ from fastapi import FastAPI
 # Import database configuration and models
 from app.database.database import Base, engine
 from app.models.expense import Expense
+from app.models.income import Income
 
-# Import the APIRouter from your routes directory
+# Import routers from the routes directory
 from app.routes.expenses import expense_router
+from app.routes.income import income_router
+from app.routes.summary import summary_router
 
 # The lifespan context manager is the recommended way in modern FastAPI
 # to execute code on application startup and shutdown.
@@ -29,9 +32,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Register the APIRouter with the main application
-# This connects all routes defined in `expense_router` to this app
+# Register APIRouters with the main application
 app.include_router(expense_router)
+app.include_router(income_router)
+app.include_router(summary_router)
 
 @app.get("/")
 def read_root():
