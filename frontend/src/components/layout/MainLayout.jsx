@@ -1,29 +1,28 @@
-import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Navbar from './Navbar';
 
 const MainLayout = () => {
+  // State to manage sidebar visibility on smaller screens
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="app-layout">
-      <header className="app-header">
-        <nav>
-          <ul>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/expenses">Expenses</Link></li>
-            <li><Link to="/income">Income</Link></li>
-            <li><Link to="/profile">Profile</Link></li>
-            <li><Link to="/login">Logout</Link></li>
-          </ul>
-        </nav>
-      </header>
+    <div className="app-container">
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       
-      <main className="app-content">
-        {/* Outlet renders the nested child route components */}
-        <Outlet />
-      </main>
-      
-      <footer className="app-footer">
-        <p>&copy; 2026 Expense Tracker App</p>
-      </footer>
+      <div className="main-wrapper">
+        <Navbar toggleSidebar={toggleSidebar} />
+        
+        <main className="main-content">
+          {/* Outlet renders the nested child route components (e.g., Dashboard, Expenses) */}
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
