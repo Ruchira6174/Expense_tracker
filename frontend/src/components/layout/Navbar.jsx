@@ -1,6 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 
 const Navbar = ({ toggleSidebar }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <header className="navbar">
       <div className="navbar-left">
@@ -11,8 +21,10 @@ const Navbar = ({ toggleSidebar }) => {
         <h1 className="app-title">Expense Tracker</h1>
       </div>
       <div className="navbar-right">
-        {/* You can add user profile info or logout button here */}
-        <span>Welcome, User</span>
+        <span>Welcome, {user?.name || user?.email || 'User'}</span>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
     </header>
   );

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import ExpenseForm from '../components/expenses/ExpenseForm';
-import expenseService from '../services/expenseService';
+import IncomeForm from '../components/income/IncomeForm';
+import incomeService from '../services/incomeService';
 
-const EditExpense = () => {
+const EditIncome = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [initialData, setInitialData] = useState(null);
@@ -12,66 +12,66 @@ const EditExpense = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchExpense = async () => {
+    const fetchIncome = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await expenseService.getById(id);
+        const data = await incomeService.getById(id);
         setInitialData(data);
       } catch (err) {
-        console.error('Error fetching expense details:', err);
-        setError(err.message || 'Failed to load expense details.');
+        console.error('Error fetching income details:', err);
+        setError(err.message || 'Failed to load income details.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchExpense();
+    fetchIncome();
   }, [id]);
 
   const handleEditSubmit = async (data) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      await expenseService.update(id, data);
-      navigate('/expenses');
+      await incomeService.update(id, data);
+      navigate('/income');
     } catch (err) {
-      console.error('Error updating expense:', err);
-      setError(err.message || 'Failed to update expense. Please try again.');
+      console.error('Error updating income:', err);
+      setError(err.message || 'Failed to update income. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleCancel = () => {
-    navigate('/expenses');
+    navigate('/income');
   };
 
   return (
-    <div className="edit-expense-page">
+    <div className="edit-income-page">
       <div className="page-header">
-        <h1>Edit Expense</h1>
-        <p>Modify the details of your recorded transaction.</p>
+        <h1>Edit Income</h1>
+        <p>Modify the details of your recorded income.</p>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
 
       <div className="form-container">
         {isLoading ? (
-          <p>Loading expense details...</p>
+          <p>Loading income details...</p>
         ) : initialData ? (
-          <ExpenseForm 
+          <IncomeForm 
             initialData={initialData} 
             onSubmit={handleEditSubmit} 
             onCancel={handleCancel} 
-            submitLabel={isSubmitting ? "Updating..." : "Update Expense"} 
+            submitLabel={isSubmitting ? "Updating..." : "Update Income"} 
           />
         ) : (
-          <p>Could not load the expense form. Please go back and try again.</p>
+          <p>Could not load the income form. Please go back and try again.</p>
         )}
       </div>
     </div>
   );
 };
 
-export default EditExpense;
+export default EditIncome;

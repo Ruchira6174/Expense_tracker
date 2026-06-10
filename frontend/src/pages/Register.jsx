@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -9,8 +10,10 @@ const Register = () => {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const validateForm = () => {
     const newErrors = {};
@@ -46,6 +49,7 @@ const Register = () => {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+    if (apiError) setApiError('');
   };
 
   const handleSubmit = async (e) => {
@@ -53,14 +57,23 @@ const Register = () => {
     
     if (validateForm()) {
       setIsLoading(true);
+      setApiError('');
       
-      // Simulate API call delay
-      setTimeout(() => {
-        setIsLoading(false);
-        console.log('Registration successful with:', formData);
+      try {
+        // Send only the fields the backend expects (exclude confirmPassword)
+        await register({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        });
         // Redirect to login after successful registration
         navigate('/login');
-      }, 1500);
+      } catch (err) {
+        console.error('Registration failed:', err);
+        setApiError(err.message || 'Registration failed. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -69,6 +82,8 @@ const Register = () => {
       <div className="register-box">
         <h2>Create an Account</h2>
         <p>Join us to start tracking your expenses.</p>
+
+        {apiError && <div className="error-banner">{apiError}</div>}
 
         <form onSubmit={handleSubmit} className="register-form">
           <div className="form-group">

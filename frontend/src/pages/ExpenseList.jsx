@@ -1,18 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import expenseService from '../services/expenseService';
 
 const ExpenseList = () => {
   const navigate = useNavigate();
-  // Dummy local state for UI demonstration
-  const [expenses, setExpenses] = useState([
-    { id: 1, title: 'Groceries', amount: 85.50, category: 'Food', date: '2026-06-10', description: 'Weekly grocery run' },
-    { id: 2, title: 'Gas Station', amount: 45.00, category: 'Transportation', date: '2026-06-09', description: 'Fill up tank' },
-    { id: 3, title: 'Internet Bill', amount: 60.00, category: 'Utilities', date: '2026-06-05', description: 'Monthly fiber internet' },
-  ]);
+  const [expenses, setExpenses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleDelete = (id) => {
+  const fetchExpenses = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await expenseService.getAll();
+      setExpenses(data);
+    } catch (err) {
+      console.error('Error fetching expenses:', err);
+      setError(err.message || 'Failed to fetch expenses.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
-      setExpenses(expenses.filter(expense => expense.id !== id));
+      try {
+        await expenseService.delete(id);
+        // Refresh the list after successful deletion
+        fetchExpenses();
+      } catch (err) {
+        console.error('Error deleting expense:', err);
+        alert(err.message || 'Failed to delete expense.');
+      }
     }
   };
 
@@ -32,6 +55,8 @@ const ExpenseList = () => {
         </Link>
       </div>
 
+      {error && <div className="error-banner">{error}</div>}
+
       <div className="table-responsive">
         <table className="data-table">
           <thead>
@@ -44,7 +69,11 @@ const ExpenseList = () => {
             </tr>
           </thead>
           <tbody>
-            {expenses.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="5" className="text-center">Loading expenses...</td>
+              </tr>
+            ) : expenses.length === 0 ? (
               <tr>
                 <td colSpan="5" className="text-center">No expenses found.</td>
               </tr>
@@ -55,7 +84,7 @@ const ExpenseList = () => {
                   <td>{expense.title}</td>
                   <td><span className={`badge badge-${expense.category.toLowerCase()}`}>{expense.category}</span></td>
                   <td className="amount-expense">
-                    ${expense.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="actions-cell">
                     <button onClick={() => handleEdit(expense.id)} className="btn-icon edit-btn">

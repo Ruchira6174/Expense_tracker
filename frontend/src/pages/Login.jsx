@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validateForm = () => {
     const newErrors = {};
@@ -32,6 +35,7 @@ const Login = () => {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+    if (apiError) setApiError('');
   };
 
   const handleSubmit = async (e) => {
@@ -39,14 +43,17 @@ const Login = () => {
     
     if (validateForm()) {
       setIsLoading(true);
+      setApiError('');
       
-      // Simulate API call delay
-      setTimeout(() => {
-        setIsLoading(false);
-        console.log('Login successful with:', formData);
-        // Normally you would save token and redirect here
+      try {
+        await login(formData);
         navigate('/dashboard');
-      }, 1500);
+      } catch (err) {
+        console.error('Login failed:', err);
+        setApiError(err.message || 'Invalid email or password. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -55,6 +62,8 @@ const Login = () => {
       <div className="login-box">
         <h2>Welcome Back</h2>
         <p>Please enter your details to sign in.</p>
+
+        {apiError && <div className="error-banner">{apiError}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
