@@ -2,12 +2,11 @@ import React from 'react';
 import SummaryCard from '../components/dashboard/SummaryCard';
 
 const Dashboard = () => {
-  // Dummy data for initial UI layout
   const summaryData = {
-    totalIncome: 5400.00,
-    totalExpenses: 3250.50,
-    remainingBalance: 2149.50,
-    monthlySavings: 500.00
+    totalIncome: 50000,
+    totalExpenses: 30000,
+    remainingBalance: 20000,
+    monthlySavings: 15000
   };
 
   return (

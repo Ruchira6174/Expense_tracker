@@ -8,6 +8,7 @@ const Navbar = ({ toggleSidebar }) => {
         <button className="menu-btn" onClick={toggleSidebar}>
           &#9776;
         </button>
+        <h1 className="app-title">Expense Tracker</h1>
       </div>
       <div className="navbar-right">
         {/* You can add user profile info or logout button here */}
