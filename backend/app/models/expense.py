@@ -10,6 +10,9 @@ class Expense(Base):
 
     # Unique identifier for each expense, acts as the primary key
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+    # Links the expense to a specific user
+    user_id = Column(Integer, nullable=False, index=True)
     
     # Title or brief description of the expense (e.g., "Lunch with client")
     title = Column(String(255), nullable=False, index=True)

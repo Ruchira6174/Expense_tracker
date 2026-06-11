@@ -17,9 +17,17 @@ class ExpenseBase(BaseModel):
 class ExpenseCreate(ExpenseBase):
     pass
 
+class ExpenseUpdate(BaseModel):
+    title: Optional[str] = Field(None, max_length=255)
+    amount: Optional[float] = Field(None, gt=0)
+    category: Optional[str] = Field(None, max_length=100)
+    date: Optional[datetime.date] = None
+    notes: Optional[str] = None
+
 # Schema used when returning an Expense from the API
 class ExpenseResponse(ExpenseBase):
     id: int
+    user_id: int
     created_at: datetime.datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,13 +1,18 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 
 # Import database configuration and models
 from app.database.database import Base, engine
 from app.models.expense import Expense
 from app.models.income import Income
+from app.models.user import User
 
 # Import routers from the routes directory
+from app.routes.auth import auth_router
 from app.routes.expenses import expense_router
+from app.routes.exports import export_router
 from app.routes.income import income_router
 from app.routes.summary import summary_router
 
@@ -20,11 +25,22 @@ async def lifespan(app: FastAPI):
     # This safely creates tables for all models inheriting from Base
     # if they do not already exist in the database.
     Base.metadata.create_all(bind=engine)
+    ensure_schema_updates()
     
     yield # The application runs during this yield
     
     # --- SHUTDOWN LOGIC ---
     print("Application shutting down...")
+
+
+def ensure_schema_updates():
+    inspector = inspect(engine)
+    if "expenses" in inspector.get_table_names():
+        expense_columns = {column["name"] for column in inspector.get_columns("expenses")}
+        if "user_id" not in expense_columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE expenses ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1"))
+                connection.execute(text("CREATE INDEX ix_expenses_user_id ON expenses (user_id)"))
 
 # Create the FastAPI app instance, attaching the lifespan manager
 app = FastAPI(
@@ -32,10 +48,23 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Register APIRouters with the main application
-app.include_router(expense_router)
-app.include_router(income_router)
-app.include_router(summary_router)
+app.include_router(auth_router, prefix="/api")
+app.include_router(expense_router, prefix="/api")
+app.include_router(export_router, prefix="/api")
+app.include_router(income_router, prefix="/api")
+app.include_router(summary_router, prefix="/api")
 
 @app.get("/")
 def read_root():

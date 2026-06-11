@@ -1,12 +1,12 @@
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 
-# Load environment variables from the .env file
-# This will read the .env file in the current or parent directories
-load_dotenv()
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+load_dotenv(BACKEND_DIR / ".env")
 
 # Retrieve database connection credentials from environment variables
 # Fallback to empty string or default values if the variable is not found
@@ -24,7 +24,7 @@ SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{D
 # Create the SQLAlchemy engine
 # The engine is the starting point for any SQLAlchemy application,
 # and it represents the interface to the database.
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 
 # Create a SessionLocal class
 # Each instance of the SessionLocal class will be a database session.

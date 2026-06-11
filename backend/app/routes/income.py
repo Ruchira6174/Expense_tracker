@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
+from typing import List, Dict
 
 from app.database.database import get_db
+from app.dependencies import get_current_user_id
 from app.schemas.income import IncomeCreate, IncomeUpdate, IncomeResponse
 from app.services import income_service
 
@@ -10,11 +11,6 @@ income_router = APIRouter(
     prefix="/income",
     tags=["Income"]
 )
-
-# --- MOCK AUTHENTICATION DEPENDENCY ---
-# In a real application, this would decode a JWT token to get the user_id
-def get_current_user_id() -> int:
-    return 1
 
 @income_router.post("/", response_model=IncomeResponse, status_code=status.HTTP_201_CREATED)
 def create_income(
