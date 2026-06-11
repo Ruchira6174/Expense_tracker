@@ -24,6 +24,13 @@
   font-size: 0.95rem;
 }
 
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
 .list-filters {
   display: flex;
   flex-wrap: wrap;
@@ -135,6 +142,12 @@
   cursor: pointer;
 }
 
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .actions-cell {
   display: flex;
   gap: 0.5rem;
@@ -186,5 +199,10 @@
 
   .filter-clear-btn {
     width: 100%;
+  }
+
+  .page-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

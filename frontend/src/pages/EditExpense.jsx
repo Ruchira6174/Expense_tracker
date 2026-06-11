@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ExpenseForm from '../components/expenses/ExpenseForm';
 import expenseService from '../services/expenseService';

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import IncomeFilters from '../components/filters/IncomeFilters';
 import useDebouncedValue from '../hooks/useDebouncedValue';
+import exportService from '../services/exportService';
 import incomeService from '../services/incomeService';
 import { formatCurrency } from '../utils/helpers';
 import {
@@ -22,13 +23,14 @@ const IncomeList = () => {
   const [incomes, setIncomes] = useState([]);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState(null);
   const debouncedSource = useDebouncedValue(filters.source);
 
-  const activeFilters = {
+  const activeFilters = useMemo(() => ({
     ...filters,
     source: debouncedSource,
-  };
+  }), [filters, debouncedSource]);
 
   const fetchIncomes = useCallback(async (currentFilters) => {
     try {
@@ -49,7 +51,7 @@ const IncomeList = () => {
 
   useEffect(() => {
     fetchIncomes(activeFilters);
-  }, [activeFilters.source, activeFilters.month, fetchIncomes]);
+  }, [activeFilters, fetchIncomes]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this income entry?')) {
@@ -71,6 +73,18 @@ const IncomeList = () => {
     setFilters(INITIAL_FILTERS);
   };
 
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportService.exportIncomeCsv();
+    } catch (err) {
+      console.error('Error exporting income:', err);
+      alert(err.message || 'Failed to export income.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const showActiveFilters = hasActiveIncomeFilters(activeFilters);
 
   return (
@@ -80,9 +94,14 @@ const IncomeList = () => {
           <h1>Income</h1>
           <p>Manage and track your incoming funds.</p>
         </div>
-        <Link to="/income/add" className="btn-primary">
-          + Add Income
-        </Link>
+        <div className="page-actions">
+          <button type="button" className="btn-secondary" onClick={handleExport} disabled={isExporting}>
+            {isExporting ? 'Exporting...' : 'Export CSV'}
+          </button>
+          <Link to="/income/add" className="btn-primary">
+            + Add Income
+          </Link>
+        </div>
       </div>
 
       <IncomeFilters

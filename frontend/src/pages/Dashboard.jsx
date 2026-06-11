@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import SummaryCard from '../components/dashboard/SummaryCard';
 import {
   ExpensePieChart,
   IncomeVsExpenseChart,
   MonthlyExpenseBarChart,
 } from '../components/charts';
+import exportService from '../services/exportService';
 import summaryService from '../services/summaryService';
+import '../styles/list-pages.css';
 import '../styles/dashboard.css';
 import '../styles/charts.css';
+import { formatCurrency } from '../utils/helpers';
 
 const Dashboard = () => {
   const [summaryData, setSummaryData] = useState({
@@ -18,12 +21,16 @@ const Dashboard = () => {
   });
   const [categoryData, setCategoryData] = useState({});
   const [monthlyData, setMonthlyData] = useState({});
+  const [recentTransactions, setRecentTransactions] = useState([]);
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
   const [isCategoryLoading, setIsCategoryLoading] = useState(true);
   const [isMonthlyLoading, setIsMonthlyLoading] = useState(true);
+  const [isRecentLoading, setIsRecentLoading] = useState(true);
+  const [isExportingReport, setIsExportingReport] = useState(false);
   const [summaryError, setSummaryError] = useState(null);
   const [categoryError, setCategoryError] = useState(null);
   const [monthlyError, setMonthlyError] = useState(null);
+  const [recentError, setRecentError] = useState(null);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -47,6 +54,18 @@ const Dashboard = () => {
 
     fetchSummary();
   }, []);
+
+  const handleExportMonthlyReport = async () => {
+    try {
+      setIsExportingReport(true);
+      await exportService.exportMonthlyReportPdf();
+    } catch (err) {
+      console.error('Error exporting monthly report:', err);
+      alert(err.message || 'Failed to export monthly report.');
+    } finally {
+      setIsExportingReport(false);
+    }
+  };
 
   useEffect(() => {
     const fetchCategoryExpenses = async () => {
@@ -84,11 +103,39 @@ const Dashboard = () => {
     fetchMonthlyTrends();
   }, []);
 
+  useEffect(() => {
+    const fetchRecentTransactions = async () => {
+      try {
+        setIsRecentLoading(true);
+        setRecentError(null);
+        const data = await summaryService.getRecentTransactions();
+        setRecentTransactions(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Error fetching recent transactions:', err);
+        setRecentError(err.message || 'Failed to load recent transactions.');
+      } finally {
+        setIsRecentLoading(false);
+      }
+    };
+
+    fetchRecentTransactions();
+  }, []);
+
   return (
     <div className="dashboard-page">
       <header className="page-header">
-        <h1>Dashboard</h1>
-        <p>Welcome back! Here is an overview of your finances.</p>
+        <div>
+          <h1>Dashboard</h1>
+          <p>Welcome back! Here is an overview of your finances.</p>
+        </div>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={handleExportMonthlyReport}
+          disabled={isExportingReport}
+        >
+          {isExportingReport ? 'Exporting...' : 'Export PDF'}
+        </button>
       </header>
 
       {summaryError && <div className="error-banner">{summaryError}</div>}
@@ -149,7 +196,38 @@ const Dashboard = () => {
       <section className="dashboard-details">
         <div className="recent-transactions">
           <h2>Recent Transactions</h2>
-          <p className="placeholder-text">Transaction list will appear here.</p>
+          {isRecentLoading ? (
+            <p className="loading-text">Loading recent transactions...</p>
+          ) : recentError ? (
+            <p className="chart-state-error">{recentError}</p>
+          ) : recentTransactions.length === 0 ? (
+            <p className="placeholder-text">No recent transactions found.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentTransactions.map((transaction) => (
+                    <tr key={`${transaction.type}-${transaction.id}`}>
+                      <td>{transaction.date}</td>
+                      <td>{transaction.title}</td>
+                      <td>{transaction.type}</td>
+                      <td className={transaction.type === 'income' ? 'amount-income' : 'amount-expense'}>
+                        {formatCurrency(transaction.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </section>
     </div>

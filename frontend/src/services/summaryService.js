@@ -29,7 +29,12 @@ const summaryService = {
   getMonthlyTrends: async (params = {}) => {
     const response = await api.get('/summary/monthly', { params });
     return response.data;
-  }
+  },
+
+  getRecentTransactions: async () => {
+    const response = await api.get('/summary/recent-transactions');
+    return response.data;
+  },
 };
 
 export default summaryService;

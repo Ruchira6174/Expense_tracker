@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatCurrency } from '../../utils/helpers';
 
 const SummaryCard = ({ title, amount, type }) => {

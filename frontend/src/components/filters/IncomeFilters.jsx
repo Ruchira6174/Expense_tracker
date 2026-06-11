@@ -1,4 +1,3 @@
-import React from 'react';
 
 const IncomeFilters = ({ filters, onChange, onClear, hasActiveFilters }) => {
   const handleChange = (event) => {

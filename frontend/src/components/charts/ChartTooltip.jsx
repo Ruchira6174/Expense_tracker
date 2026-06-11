@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatCurrency } from '../../utils/helpers';
 
 const ChartTooltip = ({ active, payload, label, valueFormatter = formatCurrency }) => {

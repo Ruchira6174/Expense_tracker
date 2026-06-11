@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import IncomeForm from '../components/income/IncomeForm';
 import incomeService from '../services/incomeService';

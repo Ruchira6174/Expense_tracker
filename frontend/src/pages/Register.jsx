@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
@@ -66,8 +66,7 @@ const Register = () => {
           email: formData.email,
           password: formData.password
         });
-        // Redirect to login after successful registration
-        navigate('/login');
+        navigate('/dashboard');
       } catch (err) {
         console.error('Registration failed:', err);
         setApiError(err.message || 'Registration failed. Please try again.');

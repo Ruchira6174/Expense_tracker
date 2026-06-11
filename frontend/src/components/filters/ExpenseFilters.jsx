@@ -1,4 +1,3 @@
-import React from 'react';
 import { EXPENSE_CATEGORIES } from '../../constants/expenseCategories';
 
 const ExpenseFilters = ({ filters, onChange, onClear, hasActiveFilters }) => {

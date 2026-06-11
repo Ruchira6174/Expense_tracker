@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { EXPENSE_CATEGORIES } from '../../constants/expenseCategories';
 
 const ExpenseForm = ({ initialData, onSubmit, onCancel, submitLabel = 'Save' }) => {
@@ -7,7 +7,7 @@ const ExpenseForm = ({ initialData, onSubmit, onCancel, submitLabel = 'Save' }) 
     amount: '',
     category: '',
     date: '',
-    description: '',
+    notes: '',
   });
   
   const [errors, setErrors] = useState({});
@@ -19,7 +19,7 @@ const ExpenseForm = ({ initialData, onSubmit, onCancel, submitLabel = 'Save' }) 
         amount: initialData.amount || '',
         category: initialData.category || '',
         date: initialData.date || '',
-        description: initialData.description || '',
+        notes: initialData.notes || '',
       });
     }
   }, [initialData]);
@@ -119,11 +119,11 @@ const ExpenseForm = ({ initialData, onSubmit, onCancel, submitLabel = 'Save' }) 
       </div>
 
       <div className="form-group">
-        <label htmlFor="description">Description (Optional)</label>
+        <label htmlFor="notes">Notes (Optional)</label>
         <textarea
-          id="description"
-          name="description"
-          value={formData.description}
+          id="notes"
+          name="notes"
+          value={formData.notes}
           onChange={handleChange}
           placeholder="Additional details..."
           rows="3"

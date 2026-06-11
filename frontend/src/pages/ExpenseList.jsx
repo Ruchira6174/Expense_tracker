@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ExpenseFilters from '../components/filters/ExpenseFilters';
 import useDebouncedValue from '../hooks/useDebouncedValue';
 import expenseService from '../services/expenseService';
+import exportService from '../services/exportService';
 import { formatCurrency } from '../utils/helpers';
 import {
   buildExpenseQueryParams,
@@ -23,13 +24,14 @@ const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState(null);
   const debouncedTitle = useDebouncedValue(filters.title);
 
-  const activeFilters = {
+  const activeFilters = useMemo(() => ({
     ...filters,
     title: debouncedTitle,
-  };
+  }), [filters, debouncedTitle]);
 
   const fetchExpenses = useCallback(async (currentFilters) => {
     try {
@@ -50,7 +52,7 @@ const ExpenseList = () => {
 
   useEffect(() => {
     fetchExpenses(activeFilters);
-  }, [activeFilters.title, activeFilters.category, activeFilters.date, fetchExpenses]);
+  }, [activeFilters, fetchExpenses]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
@@ -72,6 +74,18 @@ const ExpenseList = () => {
     setFilters(INITIAL_FILTERS);
   };
 
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportService.exportExpensesCsv();
+    } catch (err) {
+      console.error('Error exporting expenses:', err);
+      alert(err.message || 'Failed to export expenses.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const showActiveFilters = hasActiveExpenseFilters(activeFilters);
 
   return (
@@ -81,9 +95,14 @@ const ExpenseList = () => {
           <h1>Expenses</h1>
           <p>Manage and track your outgoing funds.</p>
         </div>
-        <Link to="/expenses/add" className="btn-primary">
-          + Add Expense
-        </Link>
+        <div className="page-actions">
+          <button type="button" className="btn-secondary" onClick={handleExport} disabled={isExporting}>
+            {isExporting ? 'Exporting...' : 'Export CSV'}
+          </button>
+          <Link to="/expenses/add" className="btn-primary">
+            + Add Expense
+          </Link>
+        </div>
       </div>
 
       <ExpenseFilters
