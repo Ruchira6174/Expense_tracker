@@ -1,0 +1,84 @@
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+}
+
+.chart-card-header {
+  margin-bottom: 1rem;
+}
+
+.chart-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.chart-card-description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.chart-card-body {
+  flex: 1;
+  min-height: 240px;
+}
+
+.chart-state-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  margin: 0;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.chart-state-error {
+  color: #ef4444;
+}
+
+.chart-tooltip {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.chart-tooltip-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.chart-tooltip-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart-tooltip-list li {
+  font-size: 0.875rem;
+}
+
+.recharts-legend-item-text {
+  color: var(--text-h) !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--text);
+}
+
+.recharts-default-legend {
+  padding-top: 0.75rem !important;
+}

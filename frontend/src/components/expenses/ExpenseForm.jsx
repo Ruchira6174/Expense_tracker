@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { EXPENSE_CATEGORIES } from '../../constants/expenseCategories';
 
 const ExpenseForm = ({ initialData, onSubmit, onCancel, submitLabel = 'Save' }) => {
   const [formData, setFormData] = useState({
@@ -95,12 +96,11 @@ const ExpenseForm = ({ initialData, onSubmit, onCancel, submitLabel = 'Save' }) 
           className={errors.category ? 'input-error' : ''}
         >
           <option value="">Select a category</option>
-          <option value="Food">Food & Dining</option>
-          <option value="Transportation">Transportation</option>
-          <option value="Housing">Housing</option>
-          <option value="Utilities">Utilities</option>
-          <option value="Entertainment">Entertainment</option>
-          <option value="Other">Other</option>
+          {EXPENSE_CATEGORIES.map((category) => (
+            <option key={category.value} value={category.value}>
+              {category.label}
+            </option>
+          ))}
         </select>
         {errors.category && <span className="error-message">{errors.category}</span>}
       </div>

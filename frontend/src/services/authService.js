@@ -1,45 +1,40 @@
 import api from './api';
+import { AUTH_ROUTES } from '../constants/auth';
+import { removeToken, setToken } from '../utils/tokenStorage';
+
+const extractAccessToken = (data) => data?.access_token || data?.token || null;
 
 const authService = {
-  /**
-   * Register a new user
-   * @param {Object} userData - User registration details (e.g. email, password, name)
-   * @returns {Promise} Response data
-   */
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
-  },
+    const response = await api.post(AUTH_ROUTES.register, userData);
+    const token = extractAccessToken(response.data);
 
-  /**
-   * Login an existing user
-   * @param {Object} credentials - User credentials (email, password)
-   * @returns {Promise} Response data (usually includes token and user info)
-   */
-  login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    // Usually backend returns access_token. Save it to localStorage if so.
-    if (response.data && response.data.access_token) {
-      localStorage.setItem('token', response.data.access_token);
+    if (token) {
+      setToken(token);
     }
+
     return response.data;
   },
 
-  /**
-   * Logout user
-   */
+  login: async (credentials) => {
+    const response = await api.post(AUTH_ROUTES.login, credentials);
+    const token = extractAccessToken(response.data);
+
+    if (token) {
+      setToken(token);
+    }
+
+    return response.data;
+  },
+
   logout: () => {
-    localStorage.removeItem('token');
+    removeToken();
   },
 
-  /**
-   * Get current authenticated user's profile
-   * @returns {Promise} User profile data
-   */
   getProfile: async () => {
-    const response = await api.get('/auth/me');
+    const response = await api.get(AUTH_ROUTES.me);
     return response.data;
-  }
+  },
 };
 
 export default authService;

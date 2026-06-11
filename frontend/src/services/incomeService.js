@@ -3,7 +3,7 @@ import api from './api';
 const incomeService = {
   /**
    * Get all income records for the current user
-   * @param {Object} params - Optional query parameters (e.g., limit, skip, start_date, end_date)
+   * @param {Object} params - Optional query parameters (source, month, limit, skip)
    * @returns {Promise} List of income records
    */
   getAll: async (params = {}) => {

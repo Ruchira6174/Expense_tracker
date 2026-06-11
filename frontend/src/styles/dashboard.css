@@ -1,0 +1,103 @@
+.dashboard-page {
+  width: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.5rem;
+}
+
+.page-header p {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.summary-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.summary-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.summary-amount {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.summary-card-income .summary-amount {
+  color: #14b8a6;
+}
+
+.summary-card-expense .summary-amount {
+  color: #ef4444;
+}
+
+.summary-card-balance .summary-amount,
+.summary-card-savings .summary-amount {
+  color: var(--accent);
+}
+
+.loading-text,
+.placeholder-text {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.25rem;
+}
+
+.dashboard-charts .chart-span-4 {
+  grid-column: span 12;
+}
+
+.dashboard-charts .chart-span-8 {
+  grid-column: span 12;
+}
+
+.dashboard-charts .chart-span-12 {
+  grid-column: span 12;
+}
+
+@media (min-width: 900px) {
+  .dashboard-charts .chart-span-4 {
+    grid-column: span 4;
+  }
+
+  .dashboard-charts .chart-span-8 {
+    grid-column: span 8;
+  }
+}
+
+.dashboard-details {
+  margin-top: 2rem;
+}
+
+.recent-transactions h2 {
+  margin-bottom: 0.75rem;
+}

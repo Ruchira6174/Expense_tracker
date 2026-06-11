@@ -1,13 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Layouts
 import MainLayout from '../components/layout/MainLayout';
+import ProtectedRoute from './ProtectedRoute';
+import PublicRoute from './PublicRoute';
 
-// Auth
-import ProtectedRoute from '../components/auth/ProtectedRoute';
-
-// Pages
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
@@ -17,16 +14,17 @@ import EditExpense from '../pages/EditExpense';
 import IncomeList from '../pages/IncomeList';
 import AddIncome from '../pages/AddIncome';
 import EditIncome from '../pages/EditIncome';
+import Profile from '../pages/Profile/Profile';
 import NotFound from '../pages/NotFound';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
 
-      {/* Protected Routes — requires authentication */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -37,10 +35,10 @@ const AppRoutes = () => {
           <Route path="/income" element={<IncomeList />} />
           <Route path="/income/add" element={<AddIncome />} />
           <Route path="/income/edit/:id" element={<EditIncome />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
 
-      {/* Catch-all Not Found Route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

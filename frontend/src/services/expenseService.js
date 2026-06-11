@@ -3,7 +3,7 @@ import api from './api';
 const expenseService = {
   /**
    * Get all expenses for the current user
-   * @param {Object} params - Optional query parameters (e.g., limit, skip, start_date, end_date)
+   * @param {Object} params - Optional query parameters (title, category, date, limit, skip)
    * @returns {Promise} List of expenses
    */
   getAll: async (params = {}) => {

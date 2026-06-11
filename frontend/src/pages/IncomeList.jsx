@@ -1,37 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import IncomeFilters from '../components/filters/IncomeFilters';
+import useDebouncedValue from '../hooks/useDebouncedValue';
 import incomeService from '../services/incomeService';
+import { formatCurrency } from '../utils/helpers';
+import {
+  buildIncomeQueryParams,
+  filterIncome,
+  hasActiveIncomeFilters,
+  normalizeListResponse,
+} from '../utils/filters';
+import '../styles/list-pages.css';
+
+const INITIAL_FILTERS = {
+  source: '',
+  month: '',
+};
 
 const IncomeList = () => {
   const navigate = useNavigate();
   const [incomes, setIncomes] = useState([]);
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const debouncedSource = useDebouncedValue(filters.source);
 
-  const fetchIncomes = async () => {
+  const activeFilters = {
+    ...filters,
+    source: debouncedSource,
+  };
+
+  const fetchIncomes = useCallback(async (currentFilters) => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await incomeService.getAll();
-      setIncomes(data);
+
+      const params = buildIncomeQueryParams(currentFilters);
+      const data = await incomeService.getAll(params);
+      const normalized = normalizeListResponse(data);
+      setIncomes(filterIncome(normalized, currentFilters));
     } catch (err) {
       console.error('Error fetching incomes:', err);
       setError(err.message || 'Failed to fetch income records.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchIncomes();
-  }, []);
+    fetchIncomes(activeFilters);
+  }, [activeFilters.source, activeFilters.month, fetchIncomes]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this income entry?')) {
       try {
         await incomeService.delete(id);
-        // Refresh the list after successful deletion
-        fetchIncomes();
+        fetchIncomes(activeFilters);
       } catch (err) {
         console.error('Error deleting income:', err);
         alert(err.message || 'Failed to delete income.');
@@ -43,9 +67,15 @@ const IncomeList = () => {
     navigate(`/income/edit/${id}`);
   };
 
+  const handleClearFilters = () => {
+    setFilters(INITIAL_FILTERS);
+  };
+
+  const showActiveFilters = hasActiveIncomeFilters(activeFilters);
+
   return (
     <div className="income-list-page">
-      <div className="page-header d-flex justify-content-between align-items-center">
+      <div className="page-header">
         <div>
           <h1>Income</h1>
           <p>Manage and track your incoming funds.</p>
@@ -54,6 +84,19 @@ const IncomeList = () => {
           + Add Income
         </Link>
       </div>
+
+      <IncomeFilters
+        filters={filters}
+        onChange={setFilters}
+        onClear={handleClearFilters}
+        hasActiveFilters={showActiveFilters}
+      />
+
+      {showActiveFilters && (
+        <p className="filter-summary">
+          Showing {incomes.length} result{incomes.length === 1 ? '' : 's'}
+        </p>
+      )}
 
       {error && <div className="error-banner">{error}</div>}
 
@@ -74,16 +117,16 @@ const IncomeList = () => {
               </tr>
             ) : incomes.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center">No income records found.</td>
+                <td colSpan="4" className="text-center">
+                  {showActiveFilters ? 'No income records match your filters.' : 'No income records found.'}
+                </td>
               </tr>
             ) : (
               incomes.map((income) => (
                 <tr key={income.id}>
                   <td>{income.date}</td>
                   <td>{income.source}</td>
-                  <td className="amount-income">
-                    +${Number(income.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </td>
+                  <td className="amount-income">{formatCurrency(income.amount)}</td>
                   <td className="actions-cell">
                     <button onClick={() => handleEdit(income.id)} className="btn-icon edit-btn">
                       Edit
